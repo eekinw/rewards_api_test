@@ -8,9 +8,10 @@ const rewards = [
         name: "SUPA Shirt",
         points: 50,
         quantity: 100,
-        category: "Clothing",
+        category: "clothing",
         description: "Limited edition company shirt"
     }, 
+
     {
         id: 2,
         name: "Cap",
@@ -21,6 +22,25 @@ const rewards = [
     }
 ]
 
+const redemptions = [
+    {
+      id: 234,
+      user_id: 34325,
+      reward_id: 42342,
+      redemption_date: "2023-07-24 13:59:10" ,
+      redemption_status: "completed",
+      redemption_expiry: "2023-09-24 13:59:10"
+    },
+        {
+      id: 567,
+      user_id: 344545,
+      reward_id: 45543,
+      redemption_date: "2023-06-24 13:59:10" ,
+      redemption_status: "completed",
+      redemption_expiry: "2023-08-24 13:59:10"
+    },
+]
+
 app.use(express.json());
 
 // req: client to server
@@ -28,9 +48,50 @@ app.use(express.json());
 
 
 // GET
-app.get('/rewards', (req, res) => {
-    res.send(rewards)
+// app.get('/rewards', (req, res) => {
+//     res.send(rewards)
+// })
+
+// Searching for a reward
+app.get(`/rewards`, (req, res) => {
+    const { name, points, category, description } = req.query;
+    // console.log({ name, points, category, description })
+    
+
+    if (!{ name, points, category, description }) {
+        return res.send(rewards)
+    }
+
+    // find a way to read just the values of the object, check if the search term matches the value
+    // values = ["a ", 10, true], search = "a"
+    // const rewardsFound = rewards.filter(r => Object.values(r).includes(search));
+    const rewardsFound = rewards.filter(r => r.name === name || r.points === parseInt(points) || r.category === category || r.description === description)
+
+    if (!rewardsFound || rewardsFound.length === 0) {
+        return res.status(404).send('No such rewards exists!')
+    }
+
+    return res.send(rewardsFound)
+} )
+
+app.get('/redemptions', (req, res) => {
+    res.send(redemptions)
 })
+
+app.get('/redemptions/:id', (req, res) => {
+    const redemption = redemptions.find(r => r.id === parseInt(req.params.id));
+    if (!redemption) return res.status(404).send('No reward found!');
+
+    res.send(redemption)
+})
+
+app.get('/rewards/:id', (req, res) => {
+    const reward = rewards.find(r => r.id === parseInt(req.params.id));
+    if (!reward) return res.status(404).send('No reward found')
+    
+    res.send(reward)
+})
+
 
 
 // POST
